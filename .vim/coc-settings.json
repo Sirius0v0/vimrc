@@ -1,0 +1,22 @@
+{
+    "suggest.noselect": true,
+    "languageserver": {
+        "ccls": {
+            "command": "ccls",
+            "filetypes": ["c", "cpp", "cuda", "cc", "c++", "objc", "objcpp"],
+            "rootPatterns": [".tasks", ".git/", "build/", "compile_commands.json"],
+            "initializationOptions": {
+                "compilationDatabaseDirectory": "build",
+                "client": {
+                    "snippetSupport": true
+                },
+                "cache": {
+                    "directory": "/tmp/ccls"
+                },
+                "highlight": {
+                    "lsRanges": true
+                }
+            }
+        }
+    }
+}
