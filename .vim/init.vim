@@ -3,40 +3,56 @@
 " --------------------------------------------------------------------
 set nocompatible        " 去掉对vi的兼容，让vim运行在完全模式下"
 set encoding=utf-8      " 打开文件时编码格式"
+set ignorecase          " 忽略大小写
+
+" 仅检查文件最后一行是否有模式行
+" 以实现对特定文件的个性化设置
+" 需要对本配置页进行组织折叠
+" 配置模式行 -> vim:foldmethod=marker:foldlevel=0
+" 折叠部分用 {{{和}}} 进行包装
+set modelines=1
 
 " Tab相关设置
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set smartindent
+set expandtab           " tab输入为空格
+set tabstop=4           " 读取tab字符显示的空格数
+set softtabstop=4       " 编辑时tab输入的空格数
+set shiftwidth=4        " 
+set smartindent         " 智能缩进
 set cinoptions=j1,(0,ws,Ws,g0
 
 " 代码折叠
-set fdm=syntax
-set fdl=100
+set foldmethod=syntax
+set foldlevel=100
 
-set laststatus=2        " 底部显示两行状态栏"
-set number              " 显示行号"
-set ruler               " 显示光标行号和列"
-"set rnu                " 显示相对行号"
-set hls is              " 显示高亮"
+set laststatus=2
+set number              " 显示行号
+set ruler               " 显示光标行列号
+set relativenumber      " 相对行号
+set hlsearch            " 高亮匹配项
+set incsearch           " 键入时搜索
 set listchars=tab:▸\ ,trail:⋅,extends:❯,precedes:❮
 set showbreak=↪
 set list
-set undofile
 set mouse=a
 set timeout nottimeout ttimeoutlen=10
+
+set undofile
+if has('nvim')
+    set undodir=/tmp//,.
+    set backupdir=/tmp//,.
+    set directory=/tmp//,.
+else
+    set undodir=/tmp//,.
+    set backupdir=/tmp//,.
+    set directory=/tmp//,.
+endif
 
 syntax on                   	" 开启语法高亮
 filetype on                     " 开启文件类型检测
 filetype plugin on              " 开启插件的支持
 filetype indent on              " 开启文件类型相应的缩进规则
 
-" --------------------------------------------------------------------
-"                               键盘映射
-" --------------------------------------------------------------------
-let mapleader="\<SPACE>"
+let mapleader="\<SPACE>"        " 改leader键为空格，默认为/
 
 
 " --------------------------------------------------------------------
@@ -45,10 +61,26 @@ let mapleader="\<SPACE>"
 
 call plug#begin()
 
+" ========== 功能性插件 ==========
 Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
+Plug 'Yggdroot/LeaderF', { 'do': ':LeaderfInstallCExtension' }
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'liuchengxu/vim-which-key'
+
+" ========== 美化方案 ==========
+"Plug 'sainnhe/sonokai'
+Plug 'morhetz/gruvbox'
+Plug 'itchyny/lightline.vim'
+"Plug 'voldikss/vim-floaterm'
+
+" ========== 代码辅助 ==========
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'sainnhe/sonokai'
+Plug 'puremourning/vimspector', {'do': './install_gadget.py --enable-c'}
+Plug 'preservim/nerdcommenter'
 Plug 'jackguo380/vim-lsp-cxx-highlight'
+Plug 'skywind3000/asynctasks.vim'
+Plug 'skywind3000/asyncrun.vim'
 
 call plug#end()
 
@@ -56,7 +88,14 @@ call plug#end()
 "                          End Plugin Lists
 " --------------------------------------------------------------------
 
+" Nerdtree Config Section {{{
+" ======================== Begin Nerdtree Config ========================
 
+nnoremap <leader>e :NERDTreeToggle<CR>
+
+" }}}
+
+" Coc.nvim Confing Section {{{
 " ======================== Begin Coc.nvim Config ========================
 
 " coc extensions
@@ -101,8 +140,8 @@ nmap <leader>- <Plug>(coc-diagnostic-prev)
 nmap <leader>= <Plug>(coc-diagnostic-next)
 
 " GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gD :tab sp<CR><Plug>(coc-definition)
+nmap <silent> gD <Plug>(coc-definition)
+nmap <silent> gd :tab sp<CR><Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
@@ -214,15 +253,134 @@ nnoremap <silent><nowait> glk  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent><nowait> glp  :<C-u>CocListResume<CR>
 
+" }}}
+
+" [disable]Sonokai Config Section {{{
 " ======================== Begin Sonokai Config ========================
 
- " Important!!
-if has('termguicolors')
-    set termguicolors
-endif
+"" Important!!
+"if has('termguicolors')
+    "set termguicolors
+"endif
 
-" The configuration options should be placed before `colorscheme sonokai`.
-let g:sonokai_style = 'andromeda'
-let g:sonokai_better_performance = 1
-colorscheme sonokai
+"" The configuration options should be placed before `colorscheme sonokai`.
+"let g:sonokai_style = 'andromeda'
+"let g:sonokai_better_performance = 1
+"colorscheme sonokai
 
+" }}}
+
+" CXX-Highlight Config Section {{{
+
+hi default link LspCxxHlSymFunction cxxFunction
+hi default link LspCxxHlSymFunctionParameter cxxParameter
+hi default link LspCxxHlSymFileVariableStatic cxxFileVariableStatic
+hi default link LspCxxHlSymStruct cxxStruct
+hi default link LspCxxHlSymStructField cxxStructField
+hi default link LspCxxHlSymFileTypeAlias cxxTypeAlias
+hi default link LspCxxHlSymClassField cxxStructField
+hi default link LspCxxHlSymEnum cxxEnum
+hi default link LspCxxHlSymVariableExtern cxxFileVariableStatic
+hi default link LspCxxHlSymVariable cxxVariable
+hi default link LspCxxHlSymMacro cxxMacro
+hi default link LspCxxHlSymEnumMember cxxEnumMember
+hi default link LspCxxHlSymParameter cxxParameter
+hi default link LspCxxHlSymClass cxxTypeAlias
+
+" }}}
+
+" Vimspector Config Section {{{
+" ======================== Begin Vimspector Config ========================
+
+let g:vimspector_enable_mappings = 'VISUAL_STUDIO'
+nmap <leader><ESC> :VimspectorReset<CR>
+" F11与全屏冲突，更改步入步出为F12 | S-F12
+nmap <F12> <Plug>VimspectorStepInto
+nmap <S-F12> <Plug>VimspectorStepOut
+
+nmap <leader>v <Plug>VimspectorBalloonEval
+xmap <leader>v <Plug>VimspectorBalloonEval
+
+
+" }}}
+
+" Asyncrun Config Section {{{
+
+let g:asyncrun_open = 6
+
+" }}}
+
+" Asynctasks Config Section {{{
+
+let g:asynctasks_term_rows = 6 
+let g:asynctasks_term_cols = 50
+let g:asynctasks_term_reuse = 0
+let g:asynctasks_term_focus = 0
+
+nnoremap <F7> :AsyncTask project-build<CR>
+nnoremap <C-F5> :AsyncTask project-run<CR>
+nnoremap <leader>m :AsyncTask project-config<CR>
+
+" }}}
+
+" Vim-Which-Key Config Section {{{
+
+nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> , :<c-u>WhichKey ','<CR>
+
+" }}}
+
+" LeaderF Config Section {{{
+
+let g:Lf_HideHelp = 1
+let g:Lf_WindowPosition = 'popup'
+let g:Lf_PreviewInPopup = 1
+let g:Lf_ShortcutF = ''
+
+noremap ,F :Leaderf rg<CR>
+noremap ,f :Leaderf file<CR>
+noremap ,b :Leaderf! buffer<CR>
+
+" }}}
+
+" Gruvbox Config Section {{{
+
+set bg=dark
+colorscheme gruvbox
+
+" }}}
+
+" Lightline.vim Config Section {{{
+
+set noshowmode
+"let g:lightline = {}
+
+" }}}
+
+" --------------------------------------------------------------------
+"                          Begin Custom Functions
+" --------------------------------------------------------------------
+
+" [Command]Create Debug Config {{{
+function! s:generate_vimspector_config()
+    if !filereadable('.vimspector.json')
+        if &filetype == ('c' || 'cpp')
+            tabe ./.vimspector.json
+            0r ~/.vim/.vimspectorjson/cpp.json
+        elseif &filetype == 'python'
+            tabe ./.vimspector.json
+            0r ~/.vim/.vimspectorjson/cpp.json
+        endif
+    else
+        tabe .vimspector.json
+    endif
+endfunction
+
+command! -nargs=0 GenVimspectorJson :call s:generate_vimspector_config() 
+" }}}
+
+" --------------------------------------------------------------------
+"                          Begin Custom Functions
+" --------------------------------------------------------------------
+
+" vim:foldmethod=marker:foldlevel=0
