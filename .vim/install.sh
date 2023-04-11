@@ -9,7 +9,7 @@ FORCE=${1}
 cd "$(dirname $0)"/..
 test -d ./.vim || (echo "[ERROR] .vim not found!" && exit 1)
 test -f ./.vim/install.sh || (echo "[ERROR] .vim/install.sh not found!" && exit 1)
-test -f ./clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz || (echo "[ERROR] clang+llvm not found!" && exit 1)
+test -f ./clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz || (echo "[ERROR] clang+llvm not found!" && exit 1)
 
 if [ `id -u` -eq 0 ] && [ "${FORCE}" != "y" ]; then
     echo -n "-- 此脚本无需添加sudo，如需要root权限请输入Y确认（Y/n）"; read -n1 x; echo
@@ -102,19 +102,20 @@ install_ccls_from_source() {
         fi
         cd .vim/ccls
         rm -rf /tmp/ccls-build.$$
-        rm -rf clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04
-        if [ ! -f clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz ]; then
-            cp ../../clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz .
+        rm -rf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04
+        if [ ! -f clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz ]; then
+            cp ../../clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz .
         fi
-        tar xf clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+        tar xf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
 
         echo '-- Building ccls from source...'
-	    cmake -H. -B /tmp/ccls-build.$$ -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$PWD/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04
+        export PATH=$PWD/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH
+	    cmake -H. -B /tmp/ccls-build.$$ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
         cmake --build /tmp/ccls-build.$$ --config Release --parallel `grep -c ^processor /proc/cpuinfo || echo 1`
         sudo cmake --build /tmp/ccls-build.$$ --config Release --target install
         echo '-- Installed ccls successfully'
         rm -rf /tmp/ccls-build.$$
-        rm -rf clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04
+        rm -rf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04
         cd ../..
     fi
 }
