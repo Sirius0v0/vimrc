@@ -101,7 +101,6 @@ install_ccls_from_source() {
             mv /tmp/ccls-work.$$/ccls .vim/
         fi
         cd .vim/ccls
-        rm -rf /tmp/ccls-build.$$
         rm -rf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04
         if [ ! -f clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz ]; then
             cp ../../clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz .
@@ -110,11 +109,10 @@ install_ccls_from_source() {
 
         echo '-- Building ccls from source...'
         export PATH=$PWD/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH
-	    cmake -H. -B /tmp/ccls-build.$$ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
-        cmake --build /tmp/ccls-build.$$ --config Release --parallel `grep -c ^processor /proc/cpuinfo || echo 1`
-        sudo cmake --build /tmp/ccls-build.$$ --config Release --target install
+	    cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++
+        cmake --build build --parallel `grep -c ^processor /proc/cpuinfo || echo 1`
+        sudo cmake --build build --target install
         echo '-- Installed ccls successfully'
-        rm -rf /tmp/ccls-build.$$
         rm -rf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04
         cd ../..
     fi
